@@ -1,8 +1,8 @@
 defmodule Stack.Server do
   use GenServer
 
-  def start_link(initial_stack) do
-    GenServer.start_link(__MODULE__, initial_stack, name: __MODULE__)
+  def start_link(_) do
+    GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
 
   def pop do
@@ -13,15 +13,23 @@ defmodule Stack.Server do
     GenServer.cast(__MODULE__, {:push, value})
   end
 
-  def init(initial_stack) do
-    {:ok, initial_stack}
+  def init(_) do
+    {:ok, Stack.Stash.get()}
   end
 
   def handle_call(:pop, _from, [head | tail]) do
     {:reply, head, tail}
   end
 
+  def handle_cast({:push, :crash}, _current_stack) do
+    raise "crash command has been issued"
+  end
+
   def handle_cast({:push, value}, current_stack) do
     {:noreply, [value | current_stack]}
+  end
+
+  def terminate(_reason, current_stack) do
+    Stack.Stash.update(current_stack)
   end
 end
