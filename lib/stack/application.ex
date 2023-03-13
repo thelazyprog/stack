@@ -9,7 +9,7 @@ defmodule Stack.Application do
   def start(_type, _args) do
     children = [
       # Starts a worker by calling: Sequence.Worker.start_link(arg)
-      {Stack.Stash, [1, 2, 3]},
+      {Stack.Stash, Application.get_env(:stack, :initial_stack)},
       {Stack.Server, nil}
     ]
 
